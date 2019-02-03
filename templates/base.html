@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+   <head>
+         <meta charset="utf-8"/>
+         <title>{% block title %} {% endblock %}</title>
+
+         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" >
+         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+         <style>
+
+            body{
+               background: #171426;
+               color: white;
+            }
+
+            .modal{
+               color: #000;
+            }
+
+            .table thead {
+               border: none;
+               color: #fff;
+               background-color: #37a672;
+            }
+
+            .table th {
+               border: none;
+               border-bottom: 0px !important;
+            }
+
+            .table td {
+               border: none;
+               border-top: 0px !important;
+            }
+
+            .table thead th{
+               border-bottom: 0px !important;
+            }
+
+            tr:nth-child(even) {background-color: #4e44734d;}
+
+            #imsheader{
+               background-color: #f1f1f1;
+               color: #171426;
+               padding: 0.4em 0em;
+               padding-bottom: 0;
+               margin-bottom: 0;
+               font-weight: 605;
+               font-size: 4em;
+            }
+
+            blockquote {
+               border-left: 10px solid #c05068;
+               margin: 1.5em 10px;
+               padding: 0.5em 20px;
+               quotes: "\201C""\201D""\2018""\2019";
+            }
+
+            .form-control-plaintext {
+               color: white;
+            }
+
+            .btn-success{
+               background-color: #388e3c;
+            }
+
+            .btn-success :hover{
+               background-color: #388e3c;
+            }
+
+            .btn-danger{
+               background-color: #f44336;
+            }
+
+            .btn-danger :hover{
+               background-color: #f44336;
+            }
+
+            .btn-primary{
+               background-color: #2196f3;
+            }
+
+            .btn-primary :hover{
+               background-color: #2196f3;
+            }
+
+            /* The side navigation menu */
+            .sidebar {
+            margin: 0;
+            padding: 0;
+            width: 16%;
+            background-color: #f1f1f1;
+            position: fixed;
+            height: 100%;
+            overflow: auto;
+            }
+
+            /* Sidebar links */
+            .sidebar a {
+            display: block;
+            color: black;
+            padding: 16px;
+            text-decoration: none;
+            }
+
+            /* Active/current link */
+            .sidebar a.active {
+            background-color: #51a6db;
+            color: white;
+            }
+
+            /* Links on mouse-over */
+            .sidebar a:hover:not(.active) {
+            background-color: #96c9eb;
+            color: white;
+            }
+
+            /* Page content. The value of the margin-left property should match the value of the sidebar's width property */
+            div.content {
+            margin-left: 16%;
+            padding: 0.9rem;
+            }
+
+            /* On screens that are less than 400px, display the bar vertically, instead of horizontally */
+            @media screen and (max-width: 992px) {
+               .sidebar {
+                  width: 100%;
+                  height: auto;
+                  position: relative;
+               }
+               .sidebar a {
+                  text-align: center;
+                  float: none;
+               }
+               div.content {
+               margin-left: 0;
+               padding: 1px 16px;
+               }
+            }
+
+            #toast {
+               visibility: hidden;
+               max-width: 50px;
+               height: 50px;
+               /*margin-left: -125px;*/
+               margin: auto;
+               background-color: #fff;
+               color: #333;
+               text-align: center;
+               border-radius: 2px;
+
+               position: fixed;
+               z-index: 1;
+               left: 0;right:0;
+               bottom: 30px;
+               font-size: 17px;
+               white-space: nowrap;
+            }
+            #toast #img{
+               width: 50px;
+               height: 50px;
+               
+               float: left;
+               
+               padding-top: 16px;
+               padding-bottom: 16px;
+               
+               box-sizing: border-box;
+
+               
+               background-color: #37a672;
+               color: #fff;
+            }
+            #toast #desc{
+
+               
+               color: #333;
+               
+               padding: 16px;
+               
+               overflow: hidden;
+               white-space: nowrap;
+            }
+
+            #toast.show {
+               visibility: visible;
+               -webkit-animation: fadein 0.5s, expand 0.5s 0.5s,stay 3s 1s, shrink 0.5s 2s, fadeout 0.5s 2.5s;
+               animation: fadein 0.5s, expand 0.5s 0.5s,stay 3s 1s, shrink 0.5s 4s, fadeout 0.5s 4.5s;
+            }
+
+            @-webkit-keyframes fadein {
+               from {bottom: 0; opacity: 0;} 
+               to {bottom: 30px; opacity: 1;}
+            }
+
+            @keyframes fadein {
+               from {bottom: 0; opacity: 0;}
+               to {bottom: 30px; opacity: 1;}
+            }
+
+            @-webkit-keyframes expand {
+               from {min-width: 50px} 
+               to {min-width: 350px}
+            }
+
+            @keyframes expand {
+               from {min-width: 50px}
+               to {min-width: 350px}
+            }
+            @-webkit-keyframes stay {
+               from {min-width: 350px} 
+               to {min-width: 350px}
+            }
+
+            @keyframes stay {
+               from {min-width: 350px}
+               to {min-width: 350px}
+            }
+            @-webkit-keyframes shrink {
+               from {min-width: 350px;} 
+               to {min-width: 50px;}
+            }
+
+            @keyframes shrink {
+               from {min-width: 350px;} 
+               to {min-width: 50px;}
+            }
+
+            @-webkit-keyframes fadeout {
+               from {bottom: 30px; opacity: 1;} 
+               to {bottom: 60px; opacity: 0;}
+            }
+
+            @keyframes fadeout {
+               from {bottom: 30px; opacity: 1;}
+               to {bottom: 60px; opacity: 0;}
+            } 
+         </style>
+   </head>
+   <body>
+         <div class="sidebar">
+            <h1 class="text-center" id="imsheader">IMS</h1>
+            <hr style="width: 30%; border: 2px solid #171426;">
+            <a href="home" class="sb_home">Home</a>
+            <a href="productM" class="sb_mp">Manage Products</a>
+            <a href="locationM" class="sb_ml">Manage Locations</a>
+            <a href="movementM" class="sb_mm">Manage Movements</a>
+         </div>
+         <div class="content">
+            {% block content %}{% endblock %}
+         </div>
+         <div id="toast"><div id="img">&#x3e;</div><div class="toastMessage" id="desc"></div></div>
+
+         <script type="text/javascript">
+
+            function launch_toast(msg) {
+               $(".toastMessage").text(msg);
+               var x = document.getElementById("toast")
+               x.className = "show";
+               setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000);
+            }
+
+            var getUrlParameter = function getUrlParameter(sParam) {
+               var sPageURL = window.location.search.substring(1),
+                  sURLVariables = sPageURL.split('&'),
+                  sParameterName,
+                  i;
+
+               for (i = 0; i < sURLVariables.length; i++) {
+                  sParameterName = sURLVariables[i].split('=');
+
+                  if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                  }
+               }
+            };
+
+            msg = getUrlParameter('msg');
+               
+            $(document).ready(function () {
+               if(msg!= null){
+                  launch_toast(msg);
+               }
+
+               $(function(){     
+                  var d = new Date(),        
+                        h = d.getHours(),
+                        m = d.getMinutes();
+                  if(h < 10) h = '0' + h; 
+                  if(m < 10) m = '0' + m; 
+                  $('input[type="time"][value="now"]').each(function(){ 
+                     $(this).attr({'value': h + ':' + m});
+                  });
+               });
+               
+            });
+         </script>
+   </body>
+</html>

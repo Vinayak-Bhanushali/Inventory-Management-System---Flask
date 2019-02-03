@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Report{% endblock %}
+
+{% block content %}
+      <div class="row mt-4 mb-4">
+            {% for row in rows %} 
+                  <div class="col-md-6">
+                        <iframe src='/generatereport/{{row["locationName"]}}' scrolling="no" style="width: 100%;height: 18em;overflow: hidden;"></iframe>   
+                        <a href='/generatereport/{{row["locationName"]}}' class="mb-4" style="float: right;"><button class="btn btn-dark">Detail>></button></a>
+                  </div>
+            {% endfor %}
+      </div>
+{% endblock %}

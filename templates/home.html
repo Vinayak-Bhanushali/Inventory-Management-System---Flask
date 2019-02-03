@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}I.M.S. - Home{% endblock %}
+
+{% block content %}
+   <h1 class="mt-2 mb-2 d-flex justify-content-center">DASHBOARD</h1>
+   <div class="mt-4 mb-4">
+      {% for lr in locationRows %}
+         <div class="row locData">
+            <div class="col-10 offset-1 mb-2"> 
+                  <blockquote><h3>{{lr["locationName"]}}</h3></blockquote>
+            </div>
+            <div class="col-10 offset-1 mb-2"> 
+               <table class="table" cellspacing="0" cellpadding="0">
+                  <thead class="thead" style="color: #fff; background-color:#37a672;">
+                     <tr>
+                        <th scope="col" class="text-center">Product</th>
+                        <th scope="col" class="text-center">Quantity Left</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     {% for row in data %}
+                        {% if lr["locationName"] == row["locationName"] %}
+                           <tr>
+                              <td class="text-center">{{row["productName"]}}</td>
+                              <td class="text-center">{{row["qty"]}}</td>
+                           </tr>
+                        {% endif %}
+                     {% endfor %}
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      {% endfor %}
+   </div>
+
+   <script type="text/javascript">
+      $(document).ready(function() {
+         $(".sb_home").addClass("active");   
+      });
+   </script>
+
+{% endblock %}

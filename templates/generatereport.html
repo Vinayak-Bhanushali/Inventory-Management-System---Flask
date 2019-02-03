@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Detail Report{% endblock %}
+
+{% block content %}
+   <style>
+      .sidebar{
+         display: none;
+      }
+      div.content {
+         margin: 1px 16px;
+         padding: 0px;
+      }
+   </style>
+         <h3 class="text-center">  {{ locName }} </h3>
+         
+         <table class="table">
+            <thead class="thead-dark">
+               <tr>
+                  <th scope="col" class="text-center">Product</th>
+                  <th scope="col" class="text-center">Quantity Left</th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for tp in totalProducts %}
+                  <tr>
+                     <td class="text-center">{{tp}}</td>
+                     <td class="text-center">{{totalProducts[tp]}}</td>
+                  </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+
+{% endblock %}         
+        

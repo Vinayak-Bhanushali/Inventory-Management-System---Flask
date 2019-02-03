@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Movements{% endblock %}
+
+{% block content %}
+
+   <div class="row mt-4 mb-4">
+      <div class="col-sm-6 offset-sm-3">
+         <form class="form" action = "{{ url_for('addMovement') }}" method = "POST">
+
+               <div class="form-group mb-2">
+                     <label for="AddMovement" class="sr-only">Add Movement</label>
+                     <input type="text" readonly class="form-control-plaintext form-control-lg text-center" id="AddMovement" value="Add Movement">
+               </div>
+
+               <div class="form-group row">
+                  <label for="time-input" class="col-3 col-form-label">Time</label>
+                  <div>
+                     <input class="form-control" type="time" name="atTime" id="time-input" value="now" required>
+                  </div>
+               </div>
+
+               <div class="form-group row">
+                  <label for="from_loc" class="col-3">From Location</label>
+                  <select class="form-control col-9" name = "from_location" id="from_loc" required>
+                     <option value='-'>[Move In]</option>
+                     {% for lr in locationRows %}
+                     <option value='{{lr["locationName"]}}'>{{lr["locationName"]}}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group row">
+                  <label for="to_loc" class="col-3">To Location</label>
+                  <select class="form-control col-9" name = "to_location" id="to_loc" required>
+                     <option value='-'>[Move Out]</option>
+                     {% for lr in locationRows %}
+                     <option value='{{lr["locationName"]}}'>{{lr["locationName"]}}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group row">
+                  <label for="prod" class="col-3">Product</label>
+                  <select class="form-control col-9" name = "productName" id="prod" required>
+                        {% for pr in productRows %}
+                        <option value='{{pr["productName"]}}'>{{pr["productName"]}}</option>
+                        {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group row">
+                  <label for="qty" class="col-3 col-form-label">Quantity</label>
+                  <div>
+                     <input class="form-control" type="number" name="qty" id="qty" min="0" required>
+                  </div>
+               </div>
+
+               <div class="col-8 offset-2">
+                  <button type="submit" class="btn btn-success mb-2 font-weight-bold" style="width: 100%">SUBMIT</button>
+               </div>
+         </form>
+      </div>
+   </div>
+
+   <div class="row mt-2">
+      <div class="col-sm-10 offset-sm-1">
+         <table class="table mt-4">
+            <thead class="thead">
+               <tr>
+                  <th scope="col" class="text-center">#</th>
+                  <th scope="col" class="text-center">TIME</th>
+                  <th scope="col" class="text-center">FROM LOCATION</th>
+                  <th scope="col" class="text-center">TO LOCATION</th>
+                  <th scope="col" class="text-center">PRODUCT</th>
+                  <th scope="col" class="text-center">QUANTITY</th>
+                  <th scope="col" class="text-center">ACTION </th>
+               </tr>
+            </thead>
+            <tbody>
+               {% for row in rows %}
+                  <tr>
+                     <td scope="row" class="text-center">{{row["movementID"]}}</td>
+                     <td class="text-center">{{row["atTime"]}}</td>
+                     <td class="text-center">{{row["from_location"]}}</td>
+                     <td class="text-center">{{row["to_location"]}}</td>
+                     <td class="text-center">{{row["productName"]}}</td>
+                     <td class="text-center">{{row["qty"]}}</td>
+                     <td class="text-center">
+                        <a><button class="btn btn-primary mr-1" style="float: left;" OnClick='showModal({{row["movementID"]}},"{{row["atTime"]}}","{{row["from_location"]}}","{{row["to_location"]}}","{{row["productName"]}}","{{row["qty"]}}");'>Edit</button></a>
+                           <form class="form" style="float: left;" onSubmit="if(!confirm('Confirm Delete?')){return false;}" action = "{{ url_for('deleteMovement') }}" method = "POST">
+                              <input type="hidden" name="movementID" value='{{row["movementID"]}}'>
+                              <input type="hidden" name="from_location" value='{{row["from_location"]}}'>
+                              <input type="hidden" name="to_location" value='{{row["to_location"]}}'>
+                              <input type="hidden" name="productName" value='{{row["productName"]}}'>
+                              <input type="hidden" name="qty" value='{{row["qty"]}}'>
+                              <button type="submit" class="btn btn-danger ml-1">Delete</button>
+                           </form>
+                     </td> 
+                  </tr>
+               {% endfor %}
+            </tbody>
+         </table>
+      </div>
+   </div>
+
+   <!-- The Modal -->
+   <div class="modal fade" id="myModal">
+      <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+      
+         <!-- Modal Header -->
+         <div class="modal-header">
+            <h4 class="modal-title">Edit Movement</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+         </div>
+         
+         <!-- Modal body -->
+         <div class="modal-body">
+            <form class="form ml-2 mr-2" action = "{{ url_for('editMovement') }}" method = "POST">
+               <div class="form-group mx-sm-3 mb-2">
+                  <input type="text" readonly class="form-control-plaintext  form-control-lg" name="movementID" id="form_movementID" style="display: none;" value="00">
+               </div>
+
+               <div class="form-group row">
+                  <label for="time-input" class="col-3 col-form-label">Time</label>
+                  <div>
+                     <input class="form-control" type="time" name="atTime" id="form_atTime" value="now" required>
+                  </div>
+               </div>
+
+               <div class="form-group row">
+                  <label for="from_loc" class="col-3">From Location</label>
+                  <select class="form-control col-9" name = "from_location" id="form_from_location" required>
+                     <option value='-'>[Move In]</option>
+                     {% for lr in locationRows %}
+                     <option value='{{lr["locationName"]}}'>{{lr["locationName"]}}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group row">
+                  <label for="to_loc" class="col-3">To Location</label>
+                  <select class="form-control col-9" name = "to_location" id="form_to_location" required>
+                     <option value='-'>[Move Out]</option>
+                     {% for lr in locationRows %}
+                     <option value='{{lr["locationName"]}}'>{{lr["locationName"]}}</option>
+                     {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group row">
+                  <label for="prod" class="col-3">Product</label>
+                  <select class="form-control col-9" name = "productName" id="form_productName" required>
+                        {% for pr in productRows %}
+                        <option value='{{pr["productName"]}}'>{{pr["productName"]}}</option>
+                        {% endfor %}
+                  </select>
+               </div>
+
+               <div class="form-group row">
+                  <label for="qty" class="col-3 col-form-label" >Old Quantity</label>
+                  <div>
+                     <input class="form-control" type="number" name="qty" id="form_qty" min="0" readonly required>
+                  </div>
+               </div>
+
+               <div class="form-group row">
+                  <label for="editedqty" class="col-3 col-form-label">New Quantity</label>
+                  <div>
+                     <input class="form-control" type="number" name="editedqty" id="form_editedqty" min="0" required>
+                  </div>
+               </div>
+               <div class="col-8 offset-2">
+                  <button type="submit" class="btn btn-success mb-2 font-weight-bold" style="width: 100%">UPDATE</button>
+               </div>
+            </form>
+         </div>
+         
+      </div>
+      </div>
+   </div>
+
+   <script>
+      $(document).ready(function() {
+         $(".sb_mm").addClass("active");   
+      });
+      function showModal(id,atTime,from_location,to_location,productName,qty){
+            $('#form_movementID').val(id);
+            $('#form_atTime').val(atTime);
+            $('#form_from_location').val(from_location);
+            $('#form_to_location').val(to_location);
+            $('#form_productName').val(productName);
+            $('#form_qty').val(qty);
+            $('#myModal').modal('toggle');
+         }
+   </script>
+
+{% endblock %}
