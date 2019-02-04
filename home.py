@@ -2,6 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for
 import sqlite3 as sql
 app = Flask(__name__)
 
+#db connection
+
+con = sql.connect("database.db",check_same_thread=False)
+con.row_factory = sql.Row
+cur = con.cursor()
+
 #redirect to homepage
 @app.route('/')
 def root():
@@ -10,14 +16,9 @@ def root():
 #homepage
 @app.route('/home')
 def home():
-   con = sql.connect("database.db")
-   con.row_factory = sql.Row
-
    #initalize empty list
    data = []
    
-   cur = con.cursor()
-
    cur.execute("select * from location")
    locationRows = cur.fetchall()
 
@@ -51,10 +52,6 @@ def home():
 @app.route('/productM')
 def productM():
 
-   con = sql.connect("database.db")
-   con.row_factory = sql.Row
-   
-   cur = con.cursor()
    cur.execute("select * from products")
    
    rows = cur.fetchall()
@@ -68,12 +65,10 @@ def addProduct():
       try:
          productName = request.form['pm']
          
-         with sql.connect("database.db") as con:
-            cur = con.cursor()
-            cur.execute("INSERT INTO products (productName)VALUES (?)",(productName,) )
-            
-            con.commit()
-            msg = "Product Added Successfully"
+         cur.execute("INSERT INTO products (productName)VALUES (?)",(productName,) )
+         
+         con.commit()
+         msg = "Product Added Successfully"
       except:
          con.rollback()
          msg = "error in insert operation"
@@ -89,12 +84,10 @@ def editProduct():
       try:
          productID = request.form['ProductID']
          productName = request.form['NEWProductName']
-         with sql.connect("database.db") as con:
-            cur = con.cursor()
-            cur.execute("UPDATE products SET productName = ? WHERE productID = ?",(productName,productID) )
-            
-            con.commit()
-            msg = "Product Edited Successfully"
+         cur.execute("UPDATE products SET productName = ? WHERE productID = ?",(productName,productID) )
+         
+         con.commit()
+         msg = "Product Edited Successfully"
       except:
          con.rollback()
          msg = "error in update operation"
@@ -107,12 +100,10 @@ def editProduct():
 @app.route('/deleteProduct/<productID>')
 def deleteProduct(productID):
    try:
-      with sql.connect("database.db") as con:
-         cur = con.cursor()
-         cur.execute("DELETE FROM products WHERE productID = ?",(productID,))
-         
-         con.commit()
-         msg = "Product Deleted Successfully"
+      cur.execute("DELETE FROM products WHERE productID = ?",(productID,))
+      
+      con.commit()
+      msg = "Product Deleted Successfully"
    except:
       con.rollback()
       msg = "error in delete operation"
@@ -126,10 +117,6 @@ def deleteProduct(productID):
 #location management page
 @app.route('/locationM')
 def locationM():
-   con = sql.connect("database.db")
-   con.row_factory = sql.Row
-   
-   cur = con.cursor()
    cur.execute("select * from location")
    
    rows = cur.fetchall()
@@ -142,13 +129,10 @@ def addLocation():
    if request.method == 'POST':
       try:
          locationName = request.form['lm']
+         cur.execute("INSERT INTO location (locationName)VALUES (?)",(locationName,) )
          
-         with sql.connect("database.db") as con:
-            cur = con.cursor()
-            cur.execute("INSERT INTO location (locationName)VALUES (?)",(locationName,) )
-            
-            con.commit()
-            msg = "Location successfully added"
+         con.commit()
+         msg = "Location successfully added"
       except:
          con.rollback()
          msg = "error in insert operation"
@@ -164,12 +148,10 @@ def editLocation():
       try:
          locationID = request.form['LocationID']
          locationName = request.form['NEWLocationName']
-         with sql.connect("database.db") as con:
-            cur = con.cursor()
-            cur.execute("UPDATE location SET locationName = ? WHERE locationID = ?",(locationName,locationID) )
-            
-            con.commit()
-            msg = "Location Edited Successfully"
+         cur.execute("UPDATE location SET locationName = ? WHERE locationID = ?",(locationName,locationID) )
+         
+         con.commit()
+         msg = "Location Edited Successfully"
       except:
          con.rollback()
          msg = "error in update operation"
@@ -182,12 +164,10 @@ def editLocation():
 @app.route('/deleteLocation/<locationID>')
 def deleteLocation(locationID):
    try:
-      with sql.connect("database.db") as con:
-         cur = con.cursor()
-         cur.execute("DELETE FROM location WHERE locationID = ?",(locationID,))
-         
-         con.commit()
-         msg = "Location Deleted Successfully"
+      cur.execute("DELETE FROM location WHERE locationID = ?",(locationID,))
+      
+      con.commit()
+      msg = "Location Deleted Successfully"
    except:
       con.rollback()
       msg = "error in delete operation"
@@ -201,10 +181,6 @@ def deleteLocation(locationID):
 #movement management page
 @app.route('/movementM')
 def movementM():
-   con = sql.connect("database.db")
-   con.row_factory = sql.Row
-   
-   cur = con.cursor()
    cur.execute("select * from productmovement")
    
    rows = cur.fetchall()
@@ -228,51 +204,49 @@ def movementM():
 
    return render_template('movementM.html',rows = rows,  productRows =  productRows, locationRows = locationRows)
 
-
+#function that updates balance table
 def movementManager(from_location,to_location,productName,qty):
-   with sql.connect("database.db") as con:
-      con.row_factory = sql.Row
-      cur = con.cursor()
+   cur = con.cursor()
 
-      oldQuantity = 0
-      newQuantity = 0
-   
-      #ignore in case of move in
-      if from_location != "-":
-         cur.execute("select * from balance WHERE locationName = ? AND productName = ?",(from_location,productName))
-         balanceRows = cur.fetchall()
-         #update in balance table if entry exists
-         if len(balanceRows) != 0:
-            for br in balanceRows:
-               oldQuantity = int(br["qty"])
-            
-            newQuantity = oldQuantity - qty
-            
-            if(newQuantity < 0):
-               msg = "Insuffecient Quantity In "+from_location
-               return msg
-               con.close()
+   oldQuantity = 0
+   newQuantity = 0
 
-
-            cur.execute("UPDATE balance SET qty = ?  WHERE locationName = ? AND productName = ?",(newQuantity,from_location,productName) )
-            con.commit()
-
-      #ignore in case of move out
-      if to_location != "-":
-         cur.execute("select * from balance WHERE locationName = ? AND productName = ?",(to_location,productName))
-         balanceRows = cur.fetchall()
+   #ignore in case of move in
+   if from_location != "-":
+      cur.execute("select * from balance WHERE locationName = ? AND productName = ?",(from_location,productName))
+      balanceRows = cur.fetchall()
+      #update in balance table if entry exists
+      if len(balanceRows) != 0:
+         for br in balanceRows:
+            oldQuantity = int(br["qty"])
          
-         #update in balance table if entry exists
-         if len(balanceRows) != 0:
-            for br in balanceRows:
-               oldQuantity = int(br["qty"])
-            newQuantity = oldQuantity + qty
-            
-            cur.execute("UPDATE balance SET qty = ?  WHERE locationName = ? AND productName = ?",(newQuantity,to_location,productName) )
-            con.commit()
+         newQuantity = oldQuantity - qty
+         
+         if(newQuantity < 0):
+            msg = "Insuffecient Quantity In "+from_location
+            return msg
+            con.close()
+
+
+         cur.execute("UPDATE balance SET qty = ?  WHERE locationName = ? AND productName = ?",(newQuantity,from_location,productName) )
+         con.commit()
+
+   #ignore in case of move out
+   if to_location != "-":
+      cur.execute("select * from balance WHERE locationName = ? AND productName = ?",(to_location,productName))
+      balanceRows = cur.fetchall()
       
-      msg = "Movement successfully added"
-      return msg
+      #update in balance table if entry exists
+      if len(balanceRows) != 0:
+         for br in balanceRows:
+            oldQuantity = int(br["qty"])
+         newQuantity = oldQuantity + qty
+         
+         cur.execute("UPDATE balance SET qty = ?  WHERE locationName = ? AND productName = ?",(newQuantity,to_location,productName) )
+         con.commit()
+   
+   msg = "Movement successfully added"
+   return msg
 
 #add new movement
 @app.route('/addMovement',methods = ['POST'])
@@ -289,12 +263,9 @@ def addMovement():
 
          #only add movement if it has quantity left
          if msg == "Movement successfully added":
-            with sql.connect("database.db") as con:
-               con.row_factory = sql.Row
-               cur = con.cursor()
-               #entry for product movement table 
-               cur.execute("INSERT INTO productmovement (atTime, from_location, to_location, productName, qty)VALUES (?,?,?,?,?)",(atTime,from_location,to_location,productName,qty))
-               con.commit()
+            #entry for product movement table 
+            cur.execute("INSERT INTO productmovement (atTime, from_location, to_location, productName, qty)VALUES (?,?,?,?,?)",(atTime,from_location,to_location,productName,qty))
+            con.commit()
          
    except:
       con.rollback()
@@ -325,13 +296,10 @@ def editMovement():
 
             #only update movement if it has quantity left
             if msg == "Movement successfully added":
-               with sql.connect("database.db") as con:
-                  con.row_factory = sql.Row
-                  cur = con.cursor()
-                  #entry for product movement table 
-                  cur.execute("UPDATE productmovement SET  atTime = ? , from_location = ?, to_location = ? , productName = ? , qty = ? WHERE movementID = ?",(atTime, from_location, to_location, productName, editedqty, movementID) )
-                  con.commit()
-                  msg = "Movement Edited Successfully"
+               #entry for product movement table 
+               cur.execute("UPDATE productmovement SET  atTime = ? , from_location = ?, to_location = ? , productName = ? , qty = ? WHERE movementID = ?",(atTime, from_location, to_location, productName, editedqty, movementID) )
+               con.commit()
+               msg = "Movement Edited Successfully"
             else: 
                #revert if insuffecient quantity
                revert = movementManager(from_location,to_location,productName,qty)
@@ -354,24 +322,20 @@ def deleteMovement():
          to_location = request.form['to_location']
          productName = request.form['productName']
          qty = int(request.form['qty'])
-         with sql.connect("database.db") as con:
-            cur = con.cursor()
 
-            if to_location !='-':
-               #reduce quantity from to_location
-               cur.execute("UPDATE balance SET qty = qty-?  WHERE locationName = ? AND productName = ?",(qty,to_location,productName) )
-               con.commit()
-
-            if from_location !='-':
-               #add quantity to from_location
-               cur.execute("UPDATE balance SET qty = qty+?  WHERE locationName = ? AND productName = ?",(qty,from_location,productName) )
-               con.commit()
-
-            cur.execute("DELETE FROM productmovement WHERE movementID = ?",(movementID,))
+         if to_location !='-':
+            #reduce quantity from to_location
+            cur.execute("UPDATE balance SET qty = qty-?  WHERE locationName = ? AND productName = ?",(qty,to_location,productName) )
             con.commit()
-            
+
+         if from_location !='-':
+            #add quantity to from_location
+            cur.execute("UPDATE balance SET qty = qty+?  WHERE locationName = ? AND productName = ?",(qty,from_location,productName) )
             con.commit()
-            msg = "Movement Deleted Successfully"
+
+         cur.execute("DELETE FROM productmovement WHERE movementID = ?",(movementID,))
+         con.commit()
+         msg = "Movement Deleted Successfully"
    except:
       con.rollback()
       msg = "error in delete operation"
@@ -380,53 +344,6 @@ def deleteMovement():
       return redirect(url_for('movementM')+"?msg="+msg)
       con.close()
 
-#_______________________________Report Functions_______________________________________
-
-#report management page
-@app.route('/reportM')
-def reportM():
-   con = sql.connect("database.db")
-   con.row_factory = sql.Row
-   
-   cur = con.cursor()
-   cur.execute("select * from location")
-   
-   rows = cur.fetchall()
-   
-   #initalise empty lists for locations
-   #listOfLists = [[] for i in range(totalLocations)]
-
-   return render_template('reportM.html',rows = rows)
-
-@app.route('/generatereport/<locName>')
-def generatereport(locName):
-   totalProducts = {}
-   temp = 0
-
-   con = sql.connect("database.db")
-   con.row_factory = sql.Row
-
-   cur = con.cursor()
-
-   cur.execute("select * from products")
-   productRows = cur.fetchall()
-
-   for pr in productRows:
-      cur.execute("select * from productmovement where to_location = ? AND productName = ? ",[locName,pr["productName"]])
-      innerRowAdd = cur.fetchall()
-      for ir in innerRowAdd:
-         temp += int(ir["qty"])
-      
-      cur.execute("select * from productmovement where from_location = ? AND productName = ? ",[locName,pr["productName"]])
-      innerRowSub = cur.fetchall()
-      for ir in innerRowSub:
-         temp -= int(ir["qty"])
-
-
-      totalProducts[pr["productName"]] = temp
-      temp = 0
-
-   return render_template("generatereport.html",locName = locName, totalProducts = totalProducts)
 
 if __name__ == '__main__':
    app.run(debug = True)
