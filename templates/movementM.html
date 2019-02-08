@@ -125,13 +125,13 @@
                <div class="form-group row">
                   <label for="time-input" class="col-3 col-form-label">Time</label>
                   <div>
-                     <input class="form-control" type="time" name="atTime" id="form_atTime" value="now" required>
+                     <input class="form-control" type="time" name="atTime" id="form_atTime" value="now" readonly required>
                   </div>
                </div>
 
                <div class="form-group row">
                   <label for="from_loc" class="col-3">From Location</label>
-                  <select class="form-control col-9" name = "from_location" id="form_from_location" required>
+                  <select class="form-control col-9" name = "from_location" id="form_from_location" readonly required>
                      <option value='-'>[Move In]</option>
                      {% for lr in locationRows %}
                      <option value='{{lr["locationName"]}}'>{{lr["locationName"]}}</option>
@@ -141,7 +141,7 @@
 
                <div class="form-group row">
                   <label for="to_loc" class="col-3">To Location</label>
-                  <select class="form-control col-9" name = "to_location" id="form_to_location" required>
+                  <select class="form-control col-9" name = "to_location" id="form_to_location" readonly required>
                      <option value='-'>[Move Out]</option>
                      {% for lr in locationRows %}
                      <option value='{{lr["locationName"]}}'>{{lr["locationName"]}}</option>
@@ -151,7 +151,7 @@
 
                <div class="form-group row">
                   <label for="prod" class="col-3">Product</label>
-                  <select class="form-control col-9" name = "productName" id="form_productName" required>
+                  <select class="form-control col-9" name = "productName" id="form_productName" readonly required>
                         {% for pr in productRows %}
                         <option value='{{pr["productName"]}}'>{{pr["productName"]}}</option>
                         {% endfor %}
